@@ -14,4 +14,14 @@ jobs:
       with:
         dotnet-version: 2.2.108
     - name: Build with dotnet
-      run: dotnet build --configuration Release
+      run: |
+        cd src\Jackett.Server
+        dotnet build --configuration Release
+        cd bin\Release\netcoreapp3.1
+    - name: Upload artifact
+      uses: actions/upload-artifact@v1.0.0
+      with:
+        # Artifact name
+        name: server
+        # Directory containing files to upload
+        path: bin\Release\netcoreapp3.1
