@@ -23,7 +23,7 @@ jobs:
         # Directory containing files to upload
         path: src/Jackett.Server/bin/Release/netcoreapp3.1
     - name: Publish to Registry
-      uses: HurricanKai/Publish-Docker-Github-Action@master
+      uses: elgohr/Publish-Docker-Github-Action@2.12
       with:
         name: segator/jackett
         username: ${{ secrets.DOCKER_USERNAME }}
