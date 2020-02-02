@@ -21,4 +21,4 @@ jobs:
         # Artifact name
         name: server
         # Directory containing files to upload
-        path: bin\Release\netcoreapp3.1
+        path: src/Jackett.Server/bin/Release/netcoreapp3.1
