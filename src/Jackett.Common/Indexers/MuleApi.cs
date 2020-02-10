@@ -19,6 +19,7 @@ using NLog;
 using WebClient = Jackett.Common.Utils.Clients.WebClient;
 using static Jackett.Common.Models.IndexerConfig.ConfigurationData;
 using Jackett.Common.Utils.Clients;
+using Jackett.Common.Models.IndexerConfig.Bespoke;
 
 namespace Jackett.Common.Indexers
 {
@@ -26,7 +27,7 @@ namespace Jackett.Common.Indexers
     {
         
         private string SearchUrl { get { return SiteLink + "search?q="; } }
-        
+        private ConfigurationDataMuleAPI ConfigDataMule => (ConfigurationDataMuleAPI)configData;
         public MuleApi(IIndexerConfigurationService configService, WebClient wc, Logger l, IProtectionService ps)
     : base(name: "E2DK Searcher",
            description: "E2DK Searcher",
@@ -36,7 +37,7 @@ namespace Jackett.Common.Indexers
            client: wc,
            logger: l,
            p: ps,
-           configData: new ConfigurationData())
+           configData: new ConfigurationDataMuleAPI())
         {
             Encoding = Encoding.UTF8;
             Language = "es-es";            
@@ -99,7 +100,7 @@ namespace Jackett.Common.Indexers
             var queryCollection = new NameValueCollection();
 
             //concatenate base search url with query
-            var searchFullURL = SearchUrl + searchString.Replace(" ", "%20");
+            var searchFullURL = SearchUrl + searchString.Replace(" ", "%20") + "&token="+ ConfigDataMule.Password.Value;
             var heder = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },
