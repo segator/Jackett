@@ -26,7 +26,7 @@ namespace Jackett.Common.Indexers
     public class MuleApi : BaseWebIndexer
     {
         
-        private string SearchUrl { get { return SiteLink + "search?q="; } }
+        private string SearchUrl { get { return ConfigDataMule.SiteLink.Value + "search?q="; } }
         private ConfigurationDataMuleAPI ConfigDataMule => (ConfigurationDataMuleAPI)configData;
         public MuleApi(IIndexerConfigurationService configService, WebClient wc, Logger l, IProtectionService ps)
     : base(name: "E2DK Searcher",
