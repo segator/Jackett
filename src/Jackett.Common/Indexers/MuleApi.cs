@@ -26,7 +26,7 @@ namespace Jackett.Common.Indexers
     public class MuleApi : BaseWebIndexer
     {
         
-        private string SearchUrl { get { return ConfigDataMule.SiteLink.Value + "search?q="; } }
+        private string SearchUrl { get { return ConfigDataMule.SiteLink.Value + "search"; } }
         private ConfigurationDataMuleAPI ConfigDataMule => (ConfigurationDataMuleAPI)configData;
         public MuleApi(IIndexerConfigurationService configService, WebClient wc, Logger l, IProtectionService ps)
     : base(name: "E2DK Searcher",
@@ -60,8 +60,9 @@ namespace Jackett.Common.Indexers
 
         protected override async Task<IEnumerable<ReleaseInfo>> PerformQuery(TorznabQuery query)
         {
+            
             List<ReleaseInfo> releases = new List<ReleaseInfo>();
-            var searchString = query.GetQueryString();
+            var searchString = query.SearchTerm;
             Regex qariRegex = new Regex("(?<tvshow>(.*)) S(eason)?( *)?(?<season>([0-9]{1,3}))(E(?<episode>([0-9]{1,4})))? ?(?<suffix>(.*))", RegexOptions.IgnoreCase);
             MatchCollection mc = qariRegex.Matches(searchString);
             //We are finding tv shows
@@ -90,17 +91,27 @@ namespace Jackett.Common.Indexers
         public async Task<IEnumerable<ReleaseInfo>> performSimpleSearch(String searchString)
         {
                 var releases = new List<ReleaseInfo>();     //List of releases initialization
-             //get search string from query
+                                                            //get search string from query
+            String searchFullURL = null;
+            Boolean filterLanguages = true;
             if (searchString.Length==0)
             {
-                searchString = "search";
+                searchFullURL = SearchUrl +  "?token=" + ConfigDataMule.Password.Value;
             }
-            searchString = searchString.Trim();
+            else
+            {
+                if (searchString.ToLower().Contains("#nofilterlang"))
+                {
+                    searchString = searchString.ToLower().Replace("#nofilterlang", "");
+                    filterLanguages = false;
+                }
+                searchFullURL = SearchUrl + "?q=" + searchString.Trim().Replace(" ", "%20") + "&token=" + ConfigDataMule.Password.Value;
+            }
+            
             WebClientStringResult results = null;
             var queryCollection = new NameValueCollection();
 
-            //concatenate base search url with query
-            var searchFullURL = SearchUrl + searchString.Replace(" ", "%20") + "&token="+ ConfigDataMule.Password.Value;
+            //concatenate base search url with query            
             var heder = new Dictionary<string, string>
             {
                 { "Content-Type", "application/json" },
@@ -141,7 +152,7 @@ namespace Jackett.Common.Indexers
                             title = sb.ToString();
 
 
-                            if (!checkRegularExpressionMatching(title, "(dua(l)?|tri?audio|multi)|((es(p)?|spa(nish)?|cast?)( *)[/|\\-|,|\\.|\\+| ]( *)(eng(lish)?|ja?p|v( *)(\\.?)( *)o)( *))|((ja?p|eng?|v( *)(\\.?)( *)o)( *)[/|\\-|\\.|,]( *)(es|spa|cast?))"))
+                            if (filterLanguages && !checkRegularExpressionMatching(title, "(dua(l)?|tri?audio|multi)|((es(p)?|spa(nish)?|cast?|cat)( *)[/|\\-|,|\\.|\\+| ]( *)(eng(lish)?|ja?p|v( *)(\\.?)( *)o)( *))|((ja?p|eng?|v( *)(\\.?)( *)o)( *)[/|\\-|\\.|,]( *)(es|spa|cast?|cat))"))
                             {
                                 Console.WriteLine(String.Format("{0} not match . DISCARTED", title.ToLower()));
                                 continue;
