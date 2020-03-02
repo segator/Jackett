@@ -63,6 +63,10 @@ namespace Jackett.Common.Indexers
             
             List<ReleaseInfo> releases = new List<ReleaseInfo>();
             var searchString = query.SearchTerm;
+            if(searchString == null)
+            {
+                searchString = "";
+            }
             Regex qariRegex = new Regex("(?<tvshow>(.*)) S(eason)?( *)?(?<season>([0-9]{1,3}))(E(?<episode>([0-9]{1,4})))? ?(?<suffix>(.*))", RegexOptions.IgnoreCase);
             MatchCollection mc = qariRegex.Matches(searchString);
             //We are finding tv shows
