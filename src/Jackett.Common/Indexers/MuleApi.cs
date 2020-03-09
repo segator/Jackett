@@ -43,7 +43,9 @@ namespace Jackett.Common.Indexers
             Language = "es-es";            
             Type = "public";
             AddCategoryMapping(1, TorznabCatType.TVHD, "TV HD");
-            AddCategoryMapping(2, TorznabCatType.MoviesHD, "Movies HD");
+            AddCategoryMapping(2, TorznabCatType.TVHD, "TV HD No Season");
+            AddCategoryMapping(0, TorznabCatType.MoviesHD, "Movies HD");
+            AddCategoryMapping(255, TorznabCatType.Other, "Video Others");
         }
 
 
@@ -60,8 +62,27 @@ namespace Jackett.Common.Indexers
 
         protected override async Task<IEnumerable<ReleaseInfo>> PerformQuery(TorznabQuery query)
         {
-            
+            Boolean filterTVshow = false;
+            List<string> trackerCategories = new List<String>();
+            if (query.Categories.Length > 0)
+            {
+                trackerCategories = MapTorznabCapsToTrackers(query);
+                if(trackerCategories.Contains("TV HD"))
+                {
+                    filterTVshow = true;
+                }
+
+                /* foreach (int category in query.Categories)
+                 {
+                     categoryMapping.
+                 }*/
+            }
+            else
+            {
+                filterTVshow = true;
+            }
             List<ReleaseInfo> releases = new List<ReleaseInfo>();
+            
             var searchString = query.SearchTerm;
             if(searchString == null)
             {
@@ -146,8 +167,9 @@ namespace Jackett.Common.Indexers
                                 MinimumSeedTime = 0
                             };
                             //release.PublishDate = DateTime.ParseExact(Row.QuerySelector("Added").TextContent, "yyyy-MM-dd HH:mm:ss", CultureInfo.InvariantCulture);
-                            // Get Category                            
-                            release.Category = MapTrackerCatDescToNewznab("TV HD");
+                            // Get Category      
+                            
+                            release.Category = MapTrackerCatToNewznab(Row.QuerySelector("Type").TextContent);
                             // Title and torrent link                            
                             String title = Row.QuerySelector("Name").TextContent;
                             title = title.ToLower().Replace("ª", "").Replace("°", "").Replace("[pack]", "").Replace("."," ").Replace("â"," ").Trim();
