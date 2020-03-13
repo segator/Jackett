@@ -215,7 +215,7 @@ namespace Jackett.Common.Indexers
                             release.Link = new Uri(SiteLink+qDownloadLink);
                             
                             release.Size = long.Parse(Row.QuerySelector("Size").TextContent);
-
+                            release.Guid = release.Link;
                             release.Seeders = Convert.ToInt32(Row.QuerySelector("Avail").TextContent)+2;
                             release.Peers = Convert.ToInt32(Row.QuerySelector("Avail").TextContent)+2;
                             //release.Grabs = ParseUtil.CoerceLong(sel[3].TextContent);
